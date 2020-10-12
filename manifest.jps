@@ -36,9 +36,9 @@ settings:
                       required: true
                       inputType: file
             
-  targetNodes:
+targetNodes:
 
     nodeGroup: '*'   
     
-  onInstall:
+onInstall:
   cmd [*]: echo hello world!
