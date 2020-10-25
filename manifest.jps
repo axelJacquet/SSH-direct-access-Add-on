@@ -3,7 +3,7 @@ name: SSH direct access
 baseUrl: https://raw.githubusercontent.com/axelJacquet/SSH-direct-access-Add-on/main/
 description: 
   text:   
-                        <br>Add your private ssh key to have an direct access to your containers</br>
+                        <br>Add your public ssh key to have an direct access to your containers</br>
   short: Easily add ssh key in your containers
     
 logo: /images/ssh-image.png
@@ -16,15 +16,16 @@ settings:
             type: radio-fieldset
             
             values:
-              paste: COPY/PASTE private key
-              upload: upload private key
+              paste: COPY/PASTE public key
+              upload: upload public key
               
             default: paste
             
             showIf:
             
                 paste:
-                    - caption: Paste private key
+                    - name: key
+                      caption: Paste public key
                       type: text 
                       cls: x-form-field-wrap
                       height: 200
@@ -41,4 +42,12 @@ targetNodes:
     nodeGroup: '*'   
     
 onInstall:
-  cmd [*]: echo hello world!
+  - cmd[${targetNodes.nodeGroup}]: |-
+        echo "${settings.key}" >> /root/.ssh/authorized_keys
+    user: root
+      
+  - setExtIpEnabled:
+    - enabled: true
+      nodeGroup: ${targetNodes.nodeGroup}
+    
+    
