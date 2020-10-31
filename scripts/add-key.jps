@@ -1,0 +1,38 @@
+type: update
+name: SSH direct access
+baseUrl: https://raw.githubusercontent.com/axelJacquet/SSH-direct-access-Add-on/main/
+logo: /images/ssh-image.png
+
+settings:
+  fields:
+    - name: mode
+      type: radio-fieldset
+      values:
+        paste: COPY/PASTE public key
+        upload: upload public key
+        
+      default: paste
+
+      showIf:
+          paste:
+            - name: key
+              caption: Paste public key
+              type: text 
+              cls: x-form-field-wrap
+              height: 200          
+          upload:
+            - name: location
+              caption: name of file
+              type: string
+              required: true
+              inputType: file
+ 
+onInstall:
+  - add-key
+
+actions:
+  add-key:
+    - log: add public key
+    - cmd[${targetNodes.nodeGroup}]: |-
+        echo "${settings.key}" >> /root/.ssh/authorized_keys
+      user: root
