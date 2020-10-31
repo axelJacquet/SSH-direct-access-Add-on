@@ -40,8 +40,6 @@ onInstall:
   - add-key
   - add-to-redeploy
 
-
-
 actions:
   enable-public-ip:
     - log: Enables public IPv6 if not yet set
