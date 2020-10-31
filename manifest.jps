@@ -39,6 +39,7 @@ onInstall:
   - save-old-keys
   - add-key
   - add-to-redeploy
+  - set-firewall
 
 actions:
   enable-public-ip:
@@ -85,6 +86,17 @@ actions:
         cp /root/.ssh/authorized_keys.backup /root/.ssh/authorized_keys
       user: root
       sayYes: true
+
+  set-firewall:
+    api[${targetNodes.nodeGroup}]:
+      - method: environment.security.addrule
+        params:
+          rule: {
+            action: "ALLOW",
+            direction: "INPUT",
+            name: "SSH",
+            ports: "22"
+            }
 
 onUninstall:
   - reset-keys
