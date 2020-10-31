@@ -47,7 +47,8 @@ actions:
         - api: 
           - method: environment.binder.attachextip
             params:
-              nodeGroup: "${targetNodes.nodeGroup}"
+              nodeid: ${targetNodes[0].id}
+              nodeGroup: ${targetNodes.nodeGroup}
               type: ipv6
 
   save-old-keys:
