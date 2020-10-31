@@ -3,51 +3,99 @@ name: SSH direct access
 baseUrl: https://raw.githubusercontent.com/axelJacquet/SSH-direct-access-Add-on/main/
 description: 
   text:   
-                        <br>Add your public ssh key to have an direct access to your containers</br>
-  short: Easily add ssh key in your containers
-    
+         Add your public ssh key to have a direct access to this containers without using Jelastic Gate
+  short: Easily add ssh key to your containers
 logo: /images/ssh-image.png
 
-
+targetNodes:
+    nodeGroup: '*'   
   
 settings:
   fields:
-          - name: mode
-            type: radio-fieldset
-            
-            values:
-              paste: COPY/PASTE public key
-              upload: upload public key
-              
-            default: paste
-            
-            showIf:
-            
-                paste:
-                    - name: key
-                      caption: Paste public key
-                      type: text 
-                      cls: x-form-field-wrap
-                      height: 200
+    - name: mode
+      type: radio-fieldset
+      values:
+        paste: COPY/PASTE public key
+        upload: upload public key
+        
+      default: paste
 
-                upload:
-                    - name: location
-                      caption: name of file
-                      type: string
-                      required: true
-                      inputType: file
-            
-targetNodes:
-
-    nodeGroup: '*'   
-    
+      showIf:
+          paste:
+            - name: key
+              caption: Paste public key
+              type: text 
+              cls: x-form-field-wrap
+              height: 200          
+          upload:
+            - name: location
+              caption: name of file
+              type: string
+              required: true
+              inputType: file
+                
 onInstall:
-  - cmd[${targetNodes.nodeGroup}]: |-
+  - enable-public-ip
+  - save-old-keys
+  - add-key
+  - add-to-redeploy
+
+
+
+actions:
+  enable-public-ip:
+    - log: Enables public IPv6 if not yet set
+    - if ( 1 === 1):
+        - api: 
+          - method: environment.binder.attachextip
+            params:
+              nodeGroup: "${targetNodes.nodeGroup}"
+              type: ipv6
+
+  save-old-keys:
+    - log: Make a copy of old authorized_keys file
+    - cmd[${targetNodes.nodeGroup}]: |-
+        cp /root/.ssh/authorized_keys /root/.ssh/authorized_keys.backup
+      user: root
+      sayYes: true
+
+  add-key:
+    - log: add public key
+    - cmd[${targetNodes.nodeGroup}]: |-
         echo "${settings.key}" >> /root/.ssh/authorized_keys
-    user: root
-      
-  - setExtIpEnabled:
-    - enabled: true
-      nodeGroup: ${targetNodes.nodeGroup}
-    
-    
+      user: root
+
+  add-to-redeploy:
+    - log: Add all necessary files and folder to the redeploy file
+    - cmd[${targetNodes.nodeGroup}]: |-
+        echo /root/.ssh/authorized_keys>> /etc/jelastic/redeploy.conf
+        echo /root/.ssh/authorized_keys.backup >> /etc/jelastic/redeploy.conf
+      user: root  
+
+  new-key:
+    - log: Adds a new key
+    - install: ${baseUrl}/scripts/add-key.jps
+      settings:
+        node: "${targetNodes.nodeGroup}"
+      skipEmail: true
+      user: root
+
+  reset-keys:
+    - log: Resets added keys
+    - cmd[${targetNodes.nodeGroup}]: |-
+        cp /root/.ssh/authorized_keys.backup /root/.ssh/authorized_keys
+      user: root
+      sayYes: true
+
+buttons:
+  - loadingText: Adding Key
+    action: new-key
+    caption: Add a new key
+    skipEmail: true
+  - caption: Reset keys
+    action: reset-keys
+    loadingText: Reseting
+    confirmText: Do you really want to remove manually added keys?
+    skipEmail: true
+
+  
