@@ -111,5 +111,3 @@ buttons:
     loadingText: Reseting
     confirmText: Do you really want to remove manually added keys?
     skipEmail: true
-
-  
