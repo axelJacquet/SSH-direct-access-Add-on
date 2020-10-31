@@ -85,6 +85,9 @@ actions:
       user: root
       sayYes: true
 
+onUninstall:
+  - reset-keys
+
 buttons:
   - loadingText: Adding Key
     action: new-key
