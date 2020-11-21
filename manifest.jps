@@ -44,7 +44,7 @@ settings:
             
 onInstall:
 - if ('${settings.mode}' == 'paste'):
-  
+    - verify-public-ip
     - enable-public-ip
     - save-old-keys
     - add-key
@@ -56,6 +56,15 @@ onInstall:
     - log: "${settings.location}"
     
 actions:
+  verify-public-ip:
+    - log: here
+    - script: |
+        var test = jelastic.environment.control.GetNodeInfo(${targetNodes[0].id}).result
+        return {
+          
+         test: test
+        }
+              
   enable-public-ip:
     - log: Enables public IPv6 if not yet set
     - if ( 1 === 1):
