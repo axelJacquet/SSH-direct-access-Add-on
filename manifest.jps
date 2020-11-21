@@ -11,7 +11,8 @@ targetNodes:
     nodeGroup: '*'   
   
 settings:
-  fields:
+    main:
+    fields:
     - name: mode
       type: radio-fieldset
       values:
@@ -33,14 +34,27 @@ settings:
               type: string
               required: true
               inputType: file
-                
+      config:
+      fields:
+          - name: key
+            caption: Paste public key
+            type: text 
+            cls: x-form-field-wrap
+            height: 200
+            
 onInstall:
-  - enable-public-ip
-  - save-old-keys
-  - add-key
-  - add-to-redeploy
-  - set-firewall
+- if ('${settings.mode}' == 'paste'):
+  
+    - enable-public-ip
+    - save-old-keys
+    - add-key
+    - add-to-redeploy
+    - set-firewall
+    
+- else:
 
+    - log: "${settings.location}"
+    
 actions:
   enable-public-ip:
     - log: Enables public IPv6 if not yet set
@@ -64,6 +78,15 @@ actions:
     - cmd[${targetNodes.nodeGroup}]: |-
         echo "${settings.key}" >> /root/.ssh/authorized_keys
       user: root
+      
+  new-key:
+    - log: add new public key
+    - cmd[${targetNodes.nodeGroup}]: |-
+        echo "${settings.key}" >> /root/.ssh/authorized_keys
+        echo /root/.ssh/authorized_keys>> /etc/jelastic/redeploy.conf
+        echo /root/.ssh/authorized_keys.backup >> /etc/jelastic/redeploy.conf
+        cp /root/.ssh/authorized_keys /root/.ssh/authorized_keys.backup
+      user: root
 
   add-to-redeploy:
     - log: Add all necessary files and folder to the redeploy file
@@ -71,14 +94,6 @@ actions:
         echo /root/.ssh/authorized_keys>> /etc/jelastic/redeploy.conf
         echo /root/.ssh/authorized_keys.backup >> /etc/jelastic/redeploy.conf
       user: root  
-
-  new-key:
-    - log: Adds a new key
-    - install: ${baseUrl}/scripts/add-key.jps
-      settings:
-        node: "${targetNodes.nodeGroup}"
-      skipEmail: true
-      user: root
 
   reset-keys:
     - log: Resets added keys
@@ -104,6 +119,7 @@ onUninstall:
 buttons:
   - loadingText: Adding Key
     action: new-key
+    settings: config
     caption: Add a new key
     skipEmail: true
   - caption: Reset keys
