@@ -13,61 +13,47 @@ targetNodes:
 settings:
     main:
     fields:
-    - name: mode
-      type: radio-fieldset
-      values:
-        paste: COPY/PASTE public key
-        upload: upload public key
-        
-      default: paste
-
-      showIf:
-          paste:
+   
             - name: key
               caption: Paste public key
               type: text 
               cls: x-form-field-wrap
               height: 200          
-          upload:
-            - name: location
-              caption: name of file
-              type: string
-              required: true
-              inputType: file
-      config:
-      fields:
-          - name: key
-            caption: Paste public key
-            type: text 
-            cls: x-form-field-wrap
-            height: 200
+          
             
 onInstall:
-- if ('${settings.mode}' == 'paste'):
+
     - verify-public-ip
     - enable-public-ip
     - save-old-keys
     - add-key
     - add-to-redeploy
     - set-firewall
-    
-- else:
-
-    - log: "${settings.location}"
-    
+   
 actions:
   verify-public-ip:
-    - log: here
     - script: |
-        var test = jelastic.environment.control.GetNodeInfo(${targetNodes[0].id}).result
+        var resp = jelastic.environment.control.GetNodeInfo("${env.name}", session, ${targetNodes[0].id});
+        if (resp.result != 0) return resp;
+        var hasExtIps = !!(resp.node.extipsv6 && resp.node.extipsv6[0])
+        
         return {
-          
-         test: test
-        }
-              
+         result: 0,
+         hasExtIps: !!(resp.node.extipsv6 && resp.node.extipsv6[0]),
+         extipsv6: resp.node.extipsv6,
+         onAfterReturn: {
+         call: [{
+            action: 'enable-public-ip', 
+            params: {
+                hasExtIps: hasExtIps
+            }, 
+         }] 
+          } 
+        };
+        
   enable-public-ip:
-    - log: Enables public IPv6 if not yet set
-    - if ( 1 === 1):
+    - log: ${this.hasExtIps}
+    - if ("${this.hasExtIps}" === "false"):
         - api: 
           - method: environment.binder.attachextip
             params:
