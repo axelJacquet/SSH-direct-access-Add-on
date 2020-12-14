@@ -3,5 +3,5 @@ Targeted environment: ${globals.env}
 Targeted node : node${targetNodes[0].id}-${env.name}
 
 You can ssh node : node${targetNodes[0].id}-${env.name}
-**ssh -6 jelastic@node${targetNodes[0].id}-${env.name}**
+**ssh -6 jelastic@${response.enable-public-ip}**
 
