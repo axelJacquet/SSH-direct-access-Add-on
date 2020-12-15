@@ -5,7 +5,11 @@ description:
   text:   
          Add your public ssh key to have a direct access to this containers without using Jelastic Gate
   short: Easily add ssh key to your containers
+  
 logo: /images/ssh-image.png
+
+globals:
+  env: ${env.name}
 
 targetNodes:
     nodeGroup: '*'   
@@ -53,6 +57,7 @@ actions:
         
   enable-public-ip:
     - log: ${this.hasExtIps}
+    - log: ${nodes.}
     - if ("${this.hasExtIps}" === "false"):
         - api: 
           - method: environment.binder.attachextip
@@ -64,37 +69,32 @@ actions:
   save-old-keys:
     - log: Make a copy of old authorized_keys file
     - cmd[${targetNodes.nodeGroup}]: |-
-        cp /root/.ssh/authorized_keys /root/.ssh/authorized_keys.backup
-      user: root
+        cp ~/.ssh/authorized_keys ~/.ssh/authorized_keys.backup
       sayYes: true
 
   add-key:
     - log: add public key
     - cmd[${targetNodes.nodeGroup}]: |-
-        echo "${settings.key}" >> /root/.ssh/authorized_keys
-      user: root
+        echo "${settings.key}" >> ~/.ssh/authorized_keys
       
   new-key:
     - log: add new public key
     - cmd[${targetNodes.nodeGroup}]: |-
-        echo "${settings.key}" >> /root/.ssh/authorized_keys
-        echo /root/.ssh/authorized_keys>> /etc/jelastic/redeploy.conf
-        echo /root/.ssh/authorized_keys.backup >> /etc/jelastic/redeploy.conf
-        cp /root/.ssh/authorized_keys /root/.ssh/authorized_keys.backup
-      user: root
+        echo "${settings.key}" >> ~/.ssh/authorized_keys
+        echo ~/.ssh/authorized_keys>> /etc/jelastic/redeploy.conf
+        echo ~/.ssh/authorized_keys.backup >> /etc/jelastic/redeploy.conf
+        cp ~/.ssh/authorized_keys ~/.ssh/authorized_keys.backup
 
   add-to-redeploy:
     - log: Add all necessary files and folder to the redeploy file
     - cmd[${targetNodes.nodeGroup}]: |-
-        echo /root/.ssh/authorized_keys>> /etc/jelastic/redeploy.conf
-        echo /root/.ssh/authorized_keys.backup >> /etc/jelastic/redeploy.conf
-      user: root  
+        echo ~/.ssh/authorized_keys>> /etc/jelastic/redeploy.conf
+        echo ~/.ssh/authorized_keys.backup >> /etc/jelastic/redeploy.conf
 
   reset-keys:
     - log: Resets added keys
     - cmd[${targetNodes.nodeGroup}]: |-
-        cp /root/.ssh/authorized_keys.backup /root/.ssh/authorized_keys
-      user: root
+        cp ~/.ssh/authorized_keys.backup /root/.ssh/authorized_keys
       sayYes: true
 
   set-firewall:
@@ -122,3 +122,7 @@ buttons:
     loadingText: Reseting
     confirmText: Do you really want to remove manually added keys?
     skipEmail: true
+    
+success:
+  text:  success/success.md
+  mail:  success/success.md
