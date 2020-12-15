@@ -6,10 +6,11 @@ description:
          Add your public ssh key to have a direct access to this containers without using Jelastic Gate
   short: Easily add ssh key to your containers
   
-logo: /images/ssh-image.png
+logo: images/1000.svg
 
 globals:
   env: ${env.name}
+  node: ${targetNodes[0].id}
 
 targetNodes:
     nodeGroup: '*'   
@@ -33,7 +34,15 @@ onInstall:
     - add-key
     - add-to-redeploy
     - set-firewall
-   
+    
+    - script: |
+        var resp = jelastic.environment.control.GetNodeInfo("${env.name}", session, ${targetNodes[0].id});
+        if (resp.result != 0) return resp;
+        
+        return {
+         result: 0,
+         extipsv6: resp.node.extipsv6
+         }   
 actions:
   verify-public-ip:
     - script: |
@@ -57,7 +66,7 @@ actions:
         
   enable-public-ip:
     - log: ${this.hasExtIps}
-    - log: ${nodes.}
+    
     - if ("${this.hasExtIps}" === "false"):
         - api: 
           - method: environment.binder.attachextip
@@ -65,7 +74,9 @@ actions:
               nodeid: ${targetNodes[0].id}
               nodeGroup: ${targetNodes.nodeGroup}
               type: ipv6
-
+              
+    - log: ${targetNodes.extipsv6}
+ 
   save-old-keys:
     - log: Make a copy of old authorized_keys file
     - cmd[${targetNodes.nodeGroup}]: |-
@@ -107,7 +118,7 @@ actions:
             name: "SSH",
             ports: "22"
             }
-
+    
 onUninstall:
   - reset-keys
 
