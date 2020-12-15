@@ -3,7 +3,7 @@ name: SSH direct access
 baseUrl: https://raw.githubusercontent.com/axelJacquet/SSH-direct-access-Add-on/main/
 description: 
   text:   
-         Add your public ssh key to have a direct access to this containers without using Jelastic Gate
+         Add your public ssh key to have direct access to your container.
   short: Easily add ssh key to your containers
   
 logo: images/1000.svg
