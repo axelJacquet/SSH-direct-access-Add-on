@@ -1,5 +1,5 @@
 <p align="left">
-<img src="SwissBackup.svg" width="100">
+<img src="/images/1000.svg" width="100">
 </p>
 # SSH-direct-access-Add-on
 <p align="left">
