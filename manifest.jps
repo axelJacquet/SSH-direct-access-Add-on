@@ -94,7 +94,6 @@ actions:
         echo "${settings.key}" >> ~/.ssh/authorized_keys
         echo ~/.ssh/authorized_keys >> /etc/jelastic/redeploy.conf
         echo ~/.ssh/authorized_keys.backup >> /etc/jelastic/redeploy.conf
-        cp ~/.ssh/authorized_keys ~/.ssh/authorized_keys.backup
 
   add-to-redeploy:
     - log: Add all necessary files and folder to the redeploy file
