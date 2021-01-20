@@ -92,7 +92,7 @@ actions:
     - log: add new public key
     - cmd[${targetNodes.nodeGroup}]: |-
         echo "${settings.key}" >> ~/.ssh/authorized_keys
-        echo ~/.ssh/authorized_keys>> /etc/jelastic/redeploy.conf
+        echo ~/.ssh/authorized_keys >> /etc/jelastic/redeploy.conf
         echo ~/.ssh/authorized_keys.backup >> /etc/jelastic/redeploy.conf
         cp ~/.ssh/authorized_keys ~/.ssh/authorized_keys.backup
 
@@ -105,7 +105,7 @@ actions:
   reset-keys:
     - log: Resets added keys
     - cmd[${targetNodes.nodeGroup}]: |-
-        cp ~/.ssh/authorized_keys.backup /root/.ssh/authorized_keys
+        cp ~/.ssh/authorized_keys.backup ~/.ssh/authorized_keys
       sayYes: true
 
   set-firewall:
