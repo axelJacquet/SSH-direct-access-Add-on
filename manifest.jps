@@ -4,7 +4,7 @@ baseUrl: https://raw.githubusercontent.com/axelJacquet/SSH-direct-access-Add-on/
 description: 
   text:   
          Add your public SSH key, to have direct access to your container
-  short: Easily add SSH key to your containers
+  short: Easily add SSH keys to your containers
   
 logo: images/1000.svg
 
