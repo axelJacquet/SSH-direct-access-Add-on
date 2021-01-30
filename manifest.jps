@@ -28,12 +28,12 @@ settings:
             
 onInstall:
 
+    - redeploy
     - verify-public-ip
     - enable-public-ip
     - save-old-keys
     - add-key
     - add-to-redeploy
-    - set-firewall
     
     - script: |
         var resp = jelastic.environment.control.GetNodeInfo("${env.name}", session, ${targetNodes[0].id});
@@ -44,6 +44,11 @@ onInstall:
          extipsv6: resp.node.extipsv6
          }   
 actions:
+  redeploy:
+    - cmd[${targetNodes.nodeGroup}]: |-
+        mkdir -p /etc/jelastic/
+        touch -a /etc/jelastic/redeploy.conf
+  
   verify-public-ip:
     - script: |
         var resp = jelastic.environment.control.GetNodeInfo("${env.name}", session, ${targetNodes[0].id});
@@ -107,16 +112,7 @@ actions:
         cp ~/.ssh/authorized_keys.backup ~/.ssh/authorized_keys
       sayYes: true
 
-  set-firewall:
-    api[${targetNodes.nodeGroup}]:
-      - method: environment.security.addrule
-        params:
-          rule: {
-            action: "ALLOW",
-            direction: "INPUT",
-            name: "SSH",
-            ports: "22"
-            }
+
     
 onUninstall:
   - reset-keys
