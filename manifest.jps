@@ -48,6 +48,7 @@ actions:
     - cmd[${targetNodes.nodeGroup}]: |-
         mkdir -p /etc/jelastic/
         touch -a /etc/jelastic/redeploy.conf
+      user: root 
   
   verify-public-ip:
     - script: |
